@@ -145,6 +145,36 @@ Optional system appearance assets listed in `tools/capture-spec.json` are captur
 
 Install Pillow, FFmpeg and Lua 5.4 for the full portable suite. Checks cover snapshot integrity, media references, new-media discovery, refreshed video posters, project/file search, workspace focus handoff against compositor fixtures, preset failure recovery, mocked installers and a two-pass restore with backups in a temporary home. GitHub Actions runs the same suite on pushes and pull requests. These checks do not emulate real touchpad input, compositor rendering or a fresh distro installation.
 
+## Snapshot clock and rollback
+
+Every desktop checkpoint is a Git commit plus a dated tag. A checkpoint starts as a **candidate**, becomes **stable** only after the full checks pass and you have confirmed it works in a live Hyprland session, and can be marked **broken** with a failure reason. This avoids treating an untested capture as a safe recovery point.
+
+```sh
+python3 tools/snapshot-clock.py capture "compact bar tuning" --push
+python3 tools/snapshot-clock.py list
+python3 tools/snapshot-clock.py mark-stable 20261123-120000-compact-bar-tuning --confirmed --push
+```
+
+Before `--confirmed`, log in and check the bar, launcher, wallpaper, audio, network, lock screen and monitor layout. `mark-stable` re-runs the complete verification suite in an isolated worktree before moving the `evhos/stable/current` tag. If a promoted version later fails, retain the diagnostic history and make the previous stable snapshot the default again:
+
+```sh
+python3 tools/snapshot-clock.py mark-broken 20261123-120000-compact-bar-tuning --reason "external monitor fails to start" --push
+```
+
+To inspect a rollback without changing anything, run:
+
+```sh
+python3 tools/snapshot-clock.py rollback
+```
+
+To restore the latest stable desktop, including an automatic backup of each replaced file, run:
+
+```sh
+python3 tools/snapshot-clock.py rollback --apply
+```
+
+You can restore a particular candidate or historical stable snapshot by passing its ID from `list`. Rollback restores from a temporary worktree at that exact commit; it does **not** move your current branch or erase later work. The restore backups are in `~/.local/state/evhos-backups/`.
+
 ## Manual restoration
 
 If dependencies are already installed and you only want the saved files:

@@ -25,4 +25,5 @@ if luac:
         run(luac, '-p', script)
 else:
     print('SKIP Lua syntax checks: install Lua 5.4.')
+run(sys.executable, ROOT/'tools/snapshot-clock.py', 'list')
 print('All available checks passed. Graphical session behavior still requires a live Hyprland session.')
