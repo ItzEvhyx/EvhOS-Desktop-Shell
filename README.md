@@ -147,6 +147,32 @@ Install Pillow, FFmpeg and Lua 5.4 for the full portable suite. Checks cover sna
 
 ## Snapshot clock and rollback
 
+Run the snapshot clock as your normal user from the root of your local `EvhOS-Desktop-Shell` Git clone. If you need a clone, follow the [installation steps](#01--before-you-begin). If the script is missing from an older clone, run `git pull --ff-only` from inside the clone while on `main`.
+
+### Fix “can't open file … tools/snapshot-clock.py”
+
+If Python reports `[Errno 2] No such file or directory` and looks for `tools/snapshot-clock.py` under your home directory, the command was run from `~`. Change into the clone using its actual path, then list the snapshots and preview the default rollback.
+
+```sh
+cd /path/to/EvhOS-Desktop-Shell &&
+  python3 tools/snapshot-clock.py list &&
+  python3 tools/snapshot-clock.py rollback
+```
+
+From any directory, you can also run `python3 /path/to/EvhOS-Desktop-Shell/tools/snapshot-clock.py list` with the absolute path to your clone.
+
+### Apply a rollback
+
+After reviewing the preview, run the following from the clone to restore the latest stable desktop with automatic backups of replaced files.
+
+```sh
+python3 tools/snapshot-clock.py rollback --apply
+```
+
+You can restore a particular candidate or historical stable snapshot by passing its ID from `list`. Rollback restores from a temporary worktree at that exact commit and leaves your current branch in place. The restore backups are in `~/.local/state/evhos-backups/`.
+
+### Capture and classify snapshots
+
 Every desktop checkpoint is a Git commit plus a dated tag. A checkpoint starts as a **candidate**, becomes **stable** only after the full checks pass and you have confirmed it works in a live Hyprland session, and can be marked **broken** with a failure reason. This avoids treating an untested capture as a safe recovery point.
 
 ```sh
@@ -160,20 +186,6 @@ Before `--confirmed`, log in and check the bar, launcher, wallpaper, audio, netw
 ```sh
 python3 tools/snapshot-clock.py mark-broken 20261123-120000-compact-bar-tuning --reason "external monitor fails to start" --push
 ```
-
-To inspect a rollback without changing anything, run:
-
-```sh
-python3 tools/snapshot-clock.py rollback
-```
-
-To restore the latest stable desktop, including an automatic backup of each replaced file, run:
-
-```sh
-python3 tools/snapshot-clock.py rollback --apply
-```
-
-You can restore a particular candidate or historical stable snapshot by passing its ID from `list`. Rollback restores from a temporary worktree at that exact commit; it does **not** move your current branch or erase later work. The restore backups are in `~/.local/state/evhos-backups/`.
 
 ## Manual restoration
 
