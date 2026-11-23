@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Compatibility entry point for older Hyprland bindings.
+# Only Serpantinum may be launched.
+case "${1:-serpantinum}" in
+  serpantinum)
+    mkdir -p "$HOME/.local/state"
+    printf '%s\n' serpantinum > "$HOME/.local/state/active-shell"
+    if ! serpantinumd status 2>/dev/null | grep -q 'is running'; then
+      setsid serpantinumd start >/dev/null 2>&1 &
+    fi
+    ;;
+  *)
+    echo "only the Serpantinum shell is configured" >&2
+    exit 64
+    ;;
+esac

@@ -1,0 +1,71 @@
+/* HyprMod glass theme, scoped to the application by its launcher. */
+window.background, window.background > contents {
+  background-color: rgba(19, 19, 21, 0.93);
+  color: #f3f3f3;
+}
+window.background { font-family: monospace; }
+navigation-split-view, navigation-view, navigation-page, .view, scrolledwindow, viewport {
+  background-color: transparent;
+}
+headerbar { background-color: rgba(24, 24, 26, 0.30); box-shadow: none; }
+.sidebar, navigation-split-view > .sidebar {
+  background-color: rgba(48, 48, 50, 0.38);
+}
+.navigation-sidebar { background-color: transparent; }
+.navigation-sidebar row { border-radius: 9px; margin: 2px 6px; }
+.navigation-sidebar row:selected { background-color: rgba(180, 180, 185, 0.24); }
+.preferences-group > box > list, list.boxed-list, .card {
+  background-color: rgba(72, 72, 75, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 15px;
+}
+list.boxed-list > row { background-color: transparent; }
+button, entry, spinbutton, dropdown > button { border-radius: 10px; }
+
+/* Settings-style sidebar: one continuous, translucent surface. */
+.hyprmod-sidebar, .hyprmod-sidebar toolbarview,
+.hyprmod-sidebar navigation-page, .hyprmod-sidebar scrolledwindow,
+.hyprmod-sidebar viewport, .hyprmod-sidebar .navigation-sidebar {
+  background: transparent;
+  box-shadow: none;
+}
+.hyprmod-sidebar {
+  background-color: rgba(55, 55, 57, 0.48);
+}
+.hyprmod-sidebar headerbar {
+  background: transparent;
+  padding: 8px 12px 2px;
+  min-height: 44px;
+}
+.hyprmod-sidebar headerbar button.toggle {
+  background: rgba(12, 12, 13, 0.58);
+  border-radius: 10px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+}
+.hyprmod-sidebar .sidebar-category-header {
+  font-size: 10px;
+  padding: 9px 18px 2px;
+  opacity: 0.55;
+}
+.hyprmod-sidebar .navigation-sidebar row {
+  min-height: 36px;
+  padding: 0 10px;
+  margin: 1px 10px;
+  border-radius: 9px;
+  color: #b6b6b8;
+}
+.hyprmod-sidebar .navigation-sidebar row > box {
+  min-height: 36px;
+  padding: 0;
+}
+.hyprmod-sidebar .navigation-sidebar row:selected {
+  color: #fff;
+  background-color: rgba(180, 180, 185, 0.28);
+}
+.hyprmod-sidebar .navigation-sidebar row:hover:not(:selected) {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+.hyprmod-sidebar .navigation-sidebar row image { opacity: 0.72; }
+.hyprmod-sidebar .navigation-sidebar row:selected image { opacity: 1; }

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Serpantinum is the only supported shell on this setup.
+mkdir -p "$HOME/.local/state"
+printf '%s\n' serpantinum > "$HOME/.local/state/active-shell"
+export EVHOS_LOGIN_ENTRANCE=1
+exec setsid -f "$HOME/.local/bin/serpantinumd" start >/dev/null 2>&1

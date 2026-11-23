@@ -1,0 +1,52 @@
+#!/usr/bin/python
+"""Launch the system HyprMod with the user's local glass styling."""
+import sys
+from pathlib import Path
+import gi
+gi.require_version("Gtk", "4.0")
+gi.require_version("Gdk", "4.0")
+from gi.repository import Adw, Gdk, Gtk
+from hyprmod.window import HyprModWindow
+from hyprmod.main import main
+
+_original_load_css = HyprModWindow._load_css
+_original_build_ui = HyprModWindow._build_ui
+
+def _build_styled_ui(self):
+    _original_build_ui(self)
+    self._split_view.set_min_sidebar_width(245)
+    self._split_view.set_max_sidebar_width(245)
+    sidebar = self._sidebar
+    sidebar.nav_page.add_css_class("hyprmod-sidebar")
+    sidebar.search_button.add_css_class("toggle")
+    toolbar = sidebar.nav_page.get_child()
+    def find_header(widget):
+        if isinstance(widget, Adw.HeaderBar):
+            return widget
+        child = widget.get_first_child()
+        while child:
+            found = find_header(child)
+            if found:
+                return found
+            child = child.get_next_sibling()
+        return None
+    header = find_header(toolbar)
+    if header:
+        title = Gtk.Label(label="HyprMod", xalign=0)
+        title.add_css_class("heading")
+        header.set_show_title(False)
+        header.pack_start(title)
+
+HyprModWindow._build_ui = _build_styled_ui
+
+def _load_local_css(self):
+    _original_load_css(self)
+    provider = Gtk.CssProvider()
+    provider.load_from_path(str(Path.home() / '.config/hyprmod-theme/style.css'))
+    display = Gdk.Display.get_default()
+    if display:
+        Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION + 1)
+    self.set_default_size(1200, 750)
+
+HyprModWindow._load_css = _load_local_css
+sys.exit(main())
