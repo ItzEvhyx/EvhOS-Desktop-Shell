@@ -457,7 +457,7 @@
   },
   "snapshot/home/.local/state/serpantinum/desktop-presets/EvhOS current.json": {
     "mode": "100644",
-    "sha256": "1c85ed4fd7a7ab115c435f533ed84bb5afb58184d7e6c2d0973dd636a0af4677"
+    "sha256": "e993b03b073daa6d282203e2e9c08a56f7fa41cf45c788c9511ed6d62211ce3b"
   },
   "snapshot/home/.local/state/serpantinum/desktop-presets/aa.json": {
     "mode": "100644",
@@ -577,7 +577,7 @@
   },
   "snapshot/metadata.json": {
     "mode": "100644",
-    "sha256": "b4e5506dd2ba3056968dc2e10b651d9ab81dfdcca82c7cfe273d44053aed17e3"
+    "sha256": "3fc15b77312c2f8775ae1a0c09a2019823f565102146132cd84fb8f5693f4d9c"
   },
   "snapshot/shell/bin/serpantinum": {
     "mode": "100755",
