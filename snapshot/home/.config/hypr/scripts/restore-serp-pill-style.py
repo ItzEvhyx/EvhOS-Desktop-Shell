@@ -30,6 +30,9 @@ try:
         old = path.read_text()
         updated = old
         for before, after in replacements:
+            if (path.name == 'TopBar.qml' and before.startswith('NumberAnimation')
+                    and 'id: barSlide' in updated):
+                continue
             if after in updated:
                 continue
             if before.startswith('NumberAnimation { duration: 280;') and updated.count(before) == 2:

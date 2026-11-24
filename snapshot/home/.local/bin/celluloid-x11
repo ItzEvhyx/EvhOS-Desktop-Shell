@@ -1,0 +1,5 @@
+#!/bin/sh
+# Celluloid's GTK embedded renderer cannot select an EGL config on this
+# Wayland session.  Its XWayland/OpenGL path is hardware accelerated and
+# initializes reliably, so keep the workaround local to Celluloid.
+exec env GDK_BACKEND=x11 GDK_DISABLE=egl /usr/bin/celluloid "$@"

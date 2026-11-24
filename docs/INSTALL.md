@@ -1,6 +1,6 @@
 # Installing EvhOS
 
-The installer assumes you already have a working Hyprland installation and have cloned this private repo. Sign in to GitHub to clone it. Review scripts before executing them. These installers and module have not yet been tested on clean machines; first try them on a VM or spare user. The snapshot was captured on Hyprland 0.57.2 and `noctalia-qs` 0.0.12; compatibility with other versions or the stock Quickshell fork is not established.
+Start from a working Hyprland installation and a clone of this public repository. These installers and module have not yet been tested on clean machines; first try them on a VM or spare user. The snapshot was captured on Hyprland 0.57.2 and `noctalia-qs` 0.0.12; compatibility with other versions or the stock Quickshell fork is not established.
 
 ## Arch and CachyOS
 
@@ -31,6 +31,12 @@ On NixOS the shell script doesn't install system packages imperatively. The home
 The installer builds the rich notepad with CMake, a C++ compiler, and Qt 6.7 or newer with Qt Quick private headers. The headers must match the Qt build that runs Quickshell. To restore directly, run `python3 restore.py --apply --build-rich-notes` with these dependencies available. Rebuild after updating the Quickshell Qt runtime. On NixOS, build in a package or development shell with the same `qt6.qtbase` and `qt6.qtdeclarative` development outputs used by Quickshell.
 
 The restore includes all eight icon packs and their aliases. The shell syncs the chosen pack with the destination's installed applications at startup.
+
+## Session appearance and app defaults
+
+The snapshot includes the source machine's UWSM environment, GTK and QtEngine settings, and default app associations. For matching appearance, install the referenced Adwaita GTK theme, Bibata Modern Ice cursor, Papirus icons, and QtEngine and Darkly components if they are available on your distro. The captured Celluloid launcher uses the included XWayland wrapper and expects Celluloid at `/usr/bin/celluloid`. Review the portal and MIME preferences if you use a different file chooser or media player.
+
+The source setup also enables `clear-stale-graphical-session.service` for UWSM login recovery. After restoring, you can enable that startup service for your user with `systemctl --user daemon-reload && systemctl --user enable clear-stale-graphical-session.service`.
 
 ## Optional Ski file manager
 

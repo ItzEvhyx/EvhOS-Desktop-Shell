@@ -13,6 +13,7 @@ Scope {
     property string freezeTimestamp: ""
     property bool staticLock: false
     property bool isUnlocking: false
+    readonly property bool sessionLocked: rootLock.locked
     property int resumeRevision: 0
 
     property int connectedScreenCount: 1

@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-11-23T05:26:30.772142+00:00",
+  "captured_at": "2026-11-24T07:58:30.358224+00:00",
   "source_home": "/home/yhvhan",
   "wallpaper_assets": [
     ".local/state/serpantinum/desktop-preset-assets/6811e9898488cd7ad08531973a8ee233d9a729b9d2d593a93683231ad162d782/livewallpaper_lwpack1_7.mp4",
@@ -14,7 +14,7 @@
     "qt6-multimedia": "6.12.0-1.1",
     "python": "3.14.10-2",
     "python-pillow": "13.0.0-1",
-    "ffmpeg": "2:9.0.2-5.1"
+    "ffmpeg": "2:9.1-1.1"
   },
   "system_asset_sources": [
     "/usr/share/plymouth/themes/evhos",

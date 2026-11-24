@@ -34,7 +34,6 @@ Item {
     property real cornerRadius: barWindow ? barWindow.cornerRadius : 12
     property bool barAtBottom: !!barWindow && barWindow.barPosition === "bottom"
     property bool isTopNotch: isSolid && !isFill && !!barWindow && barWindow.barPosition === "top" // local notch
-    readonly property color notchBaseColor: isTopNotch && barWindow ? Qt.tint(ThemeBackend.base, Qt.alpha(ThemeBackend.text, barWindow.notchHoverStrength)) : ThemeBackend.base // local hover highlight
     property real fillAttachProgress: ((isFill && barWindow && barWindow.fillAttached) || isTopNotch) ? 1.0 : 0.0
     property real fillFarRadius: Math.min(cornerRadius, barWindow ? barWindow.barHeight / 2 : cornerRadius) * fillAttachProgress
 
@@ -575,7 +574,7 @@ Item {
 
     anchors.fill: parent
     visible: barWindow ? (!barWindow.isVertical && !barWindow.positionChanging) : true
-    opacity: (visible && (!barWindow || !barWindow.positionChanging) && (!barWindow || barWindow.isRevealed)) ? 1.0 : 0.0
+    opacity: visible && (isTopNotch || !barWindow || barWindow.isRevealed) ? 1.0 : 0.0
 
     property real hideOffsetY: {
         if (!barWindow || barWindow.isRevealed) return 0;
@@ -583,11 +582,16 @@ Item {
         return barWindow.barPosition === "bottom" ? offset : -offset;
     }
 
+    readonly property real slideOffsetY: barSlide.y
     transform: Translate {
+        id: barSlide
         y: contentWrapper.hideOffsetY
         Behavior on y {
             enabled: barWindow ? !barWindow.positionChanging : true
-            NumberAnimation { duration: 80; easing.type: Easing.OutQuint }
+            NumberAnimation {
+                duration: contentWrapper.isTopNotch ? 280 : 80
+                easing.type: contentWrapper.isTopNotch ? Easing.InOutSine : Easing.OutQuint
+            }
         }
     }
 
@@ -620,7 +624,7 @@ Item {
         width: Math.round(contentWrapper.dynamicMaxX) - Math.round(contentWrapper.dynamicMinX)
         height: barWindow ? barWindow.barHeight : 0
         y: barWindow ? barWindow.baseOffsetY : 0
-        color: Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        color: Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
         radius: isFill ? 0 : height / 2 // local pill style
         topLeftRadius: contentWrapper.isTopNotch ? 0 : (isFill ? (contentWrapper.barAtBottom ? contentWrapper.fillFarRadius : 0) : radius) // local notch
         topRightRadius: contentWrapper.isTopNotch ? 0 : (isFill ? (contentWrapper.barAtBottom ? contentWrapper.fillFarRadius : 0) : radius) // local notch
@@ -668,16 +672,41 @@ Item {
         z: 1
         layer.enabled: true
         layer.samples: 4
-        readonly property bool trayAttached: TrayMenuController.isVisible && !TrayMenuController.isSideBar && !TrayMenuController.alignBottom && barWindow && TrayMenuController.screen === barWindow.screen
-        readonly property real trayCenter: contentWrapper.mapFromItem(null, TrayMenuController.targetX, 0).x - x
+        readonly property var trayAttachment: TrayMenuController.topBarAttachment
+        readonly property bool trayAttached: trayAttachment !== null && barWindow && TrayMenuController.screen === barWindow.screen
         readonly property real outlineStart: contentWrapper.cornerRadius + solidBackground.radius
         readonly property real outlineEnd: contentWrapper.cornerRadius + solidBackground.width - solidBackground.radius
-        readonly property real gapLeft: trayAttached ? Math.max(outlineStart, Math.min(outlineEnd, trayCenter - Scaler.s(236) / 2 - Scaler.s(12))) : outlineEnd
-        readonly property real gapRight: trayAttached ? Math.max(gapLeft, Math.min(outlineEnd, trayCenter + Scaler.s(236) / 2 + Scaler.s(12))) : outlineEnd
+        readonly property bool calendarAttached: !!barWindow && !!barWindow.screen
+            && NachtCalendar.canAttach && NachtCalendar.overlayWidth > 0
+            && NachtCalendar.screenName === barWindow.screen.name
+        readonly property var gaps: {
+            const intervals = [];
+            if (trayAttached) {
+                const center = contentWrapper.mapFromItem(null, trayAttachment.center - barWindow.margins.left, 0).x - x;
+                intervals.push(gap(center, trayAttachment.halfWidth / barWindow.notchScaleX));
+            }
+            if (calendarAttached) {
+                const anchorX = NachtCalendar.bar.notchCenterX - barWindow.margins.left;
+                const center = contentWrapper.mapFromItem(null, anchorX, 0).x - x;
+                const halfWidth = Math.max(0, NachtCalendar.overlayWidth / 2 - 1) / barWindow.notchScaleX;
+                intervals.push(gap(center, halfWidth));
+            }
+            intervals.sort((first, second) => first[0] - second[0]);
+            if (intervals.length === 2 && intervals[0][1] >= intervals[1][0])
+                return [[intervals[0][0], Math.max(intervals[0][1], intervals[1][1])]];
+            return intervals;
+        }
+        readonly property var firstGap: gaps[0] || [outlineEnd, outlineEnd]
+        readonly property var secondGap: gaps[1] || [outlineEnd, outlineEnd]
+
+        function gap(center, halfWidth) {
+            return [Math.max(outlineStart, Math.min(outlineEnd, center - halfWidth)),
+                    Math.max(outlineStart, Math.min(outlineEnd, center + halfWidth))];
+        }
 
         ShapePath {
-            strokeWidth: 1
-            strokeColor: Qt.alpha(ThemeBackend.text, 0.28)
+            strokeWidth: notchOutline.calendarAttached ? Math.round(Scaler.s(2)) : 1
+            strokeColor: notchOutline.calendarAttached ? NachtCalendar.accent : Qt.alpha(ThemeBackend.text, 0.28)
             fillColor: "transparent"
             capStyle: ShapePath.FlatCap
             joinStyle: ShapePath.RoundJoin
@@ -686,8 +715,10 @@ Item {
             PathQuad { x: contentWrapper.cornerRadius; y: contentWrapper.cornerRadius; controlX: contentWrapper.cornerRadius; controlY: 0 }
             PathLine { x: contentWrapper.cornerRadius; y: notchOutline.height - solidBackground.radius }
             PathQuad { x: contentWrapper.cornerRadius + solidBackground.radius; y: notchOutline.height - 0.5; controlX: contentWrapper.cornerRadius; controlY: notchOutline.height - 0.5 }
-            PathLine { x: notchOutline.gapLeft; y: notchOutline.height - 0.5 }
-            PathMove { x: notchOutline.gapRight; y: notchOutline.height - 0.5 }
+            PathLine { x: notchOutline.firstGap[0]; y: notchOutline.height - 0.5 }
+            PathMove { x: notchOutline.firstGap[1]; y: notchOutline.height - 0.5 }
+            PathLine { x: notchOutline.secondGap[0]; y: notchOutline.height - 0.5 }
+            PathMove { x: notchOutline.secondGap[1]; y: notchOutline.height - 0.5 }
             PathLine { x: contentWrapper.cornerRadius + solidBackground.width - solidBackground.radius; y: notchOutline.height - 0.5 }
             PathQuad { x: contentWrapper.cornerRadius + solidBackground.width; y: notchOutline.height - solidBackground.radius; controlX: contentWrapper.cornerRadius + solidBackground.width; controlY: notchOutline.height - 0.5 }
             PathLine { x: contentWrapper.cornerRadius + solidBackground.width; y: contentWrapper.cornerRadius }
@@ -707,7 +738,7 @@ Item {
 
         property vector2d itemSize: Qt.vector2d(width, height)
         property real cornerIndex: (barWindow && barWindow.barPosition === "bottom") ? 2.0 : 0.0
-        property color color: Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        property color color: Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
 
         fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
 
@@ -729,7 +760,7 @@ Item {
 
         property vector2d itemSize: Qt.vector2d(width, height)
         property real cornerIndex: (barWindow && barWindow.barPosition === "bottom") ? 3.0 : 1.0
-        property color color: Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        property color color: Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
 
         fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
 
@@ -747,12 +778,12 @@ Item {
         width: radius
         height: radius
         visible: !ThemeBackend.liquidGlass && (contentWrapper.isFill || contentWrapper.isTopNotch) && radius > 0.5 && (barWindow ? !barWindow.positionChanging : true) // local notch
-        opacity: (visible && (!barWindow || barWindow.isRevealed)) ? 1.0 : 0.0
+        opacity: visible && (contentWrapper.isTopNotch || !barWindow || barWindow.isRevealed) ? 1.0 : 0.0
         z: 0
 
         property vector2d itemSize: Qt.vector2d(width, height)
         property real cornerIndex: contentWrapper.barAtBottom ? 3.0 : 1.0
-        property color color: Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        property color color: Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
 
         fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
 
@@ -770,12 +801,12 @@ Item {
         width: radius
         height: radius
         visible: !ThemeBackend.liquidGlass && (contentWrapper.isFill || contentWrapper.isTopNotch) && radius > 0.5 && (barWindow ? !barWindow.positionChanging : true) // local notch
-        opacity: (visible && (!barWindow || barWindow.isRevealed)) ? 1.0 : 0.0
+        opacity: visible && (contentWrapper.isTopNotch || !barWindow || barWindow.isRevealed) ? 1.0 : 0.0
         z: 0
 
         property vector2d itemSize: Qt.vector2d(width, height)
         property real cornerIndex: contentWrapper.barAtBottom ? 2.0 : 0.0
-        property color color: Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        property color color: Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
 
         fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
 
@@ -878,7 +909,7 @@ Item {
 
             color: (groupGlass.active || (ThemeBackend.liquidGlass && groupBlur.active)) ? "transparent" : ((contentWrapper.isSolid && contentWrapper.distinctPills)
                 ? Qt.alpha(Qt.darker(ThemeBackend.surface0, 1.15), (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
-                : Qt.alpha(contentWrapper.notchBaseColor, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0))
+                : Qt.alpha(ThemeBackend.base, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0))
             radius: ThemeBackend.borderRadius
             property Item blurSurface: groupBlur
 

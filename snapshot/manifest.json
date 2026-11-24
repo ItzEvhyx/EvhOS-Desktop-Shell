@@ -19,6 +19,14 @@
     "mode": "100644",
     "sha256": "eab79eee2e685c019918fd88bc16152d0e4421fcf259595cb7845d42aa55370d"
   },
+  "snapshot/home/.config/environment.d/80-flatpak-icons.conf": {
+    "mode": "100644",
+    "sha256": "6903eb7f50be732f95dafda5828a940b455091cd55bbb2e62ef3116931ded379"
+  },
+  "snapshot/home/.config/environment.d/serpantinum-portal.conf": {
+    "mode": "100644",
+    "sha256": "73337a8ba09ed8816f3f3db14afed49a11762ac9ad703302eea85baf7da77025"
+  },
   "snapshot/home/.config/fastfetch/config.jsonc": {
     "mode": "100644",
     "sha256": "ee921f91135c60e08a7f854d2522c5280a96a5b6ea1a288e1511214ebf22a8b3"
@@ -55,13 +63,45 @@
     "mode": "100644",
     "sha256": "a6c6f1fd88228671a34e5333a18ef4475c314ec058d1f98b390dd990cd54ee0d"
   },
+  "snapshot/home/.config/gtk-3.0/gtk.css": {
+    "mode": "100644",
+    "sha256": "150bfad110fe062b61260923f88ffae1a10f4cbb2041cac65d2edab00c6ee09c"
+  },
+  "snapshot/home/.config/gtk-3.0/settings.ini": {
+    "mode": "100644",
+    "sha256": "f1b05edf49716d67a86ea5af52eb7ed371683629edfdbc4ba469b10bcdd7821f"
+  },
+  "snapshot/home/.config/gtk-3.0/thunar.css": {
+    "mode": "100644",
+    "sha256": "d65612a59e4723f959adf9c5fb70e5169d79107d33762bbe16c0a2afa95e7a2c"
+  },
+  "snapshot/home/.config/gtk-4.0/assets": {
+    "mode": "120000",
+    "target": "/usr/share/themes/adw-gtk3-dark/gtk-4.0/assets"
+  },
+  "snapshot/home/.config/gtk-4.0/gtk-dark.css": {
+    "mode": "120000",
+    "target": "/usr/share/themes/adw-gtk3-dark/gtk-4.0/gtk-dark.css"
+  },
+  "snapshot/home/.config/gtk-4.0/gtk.css": {
+    "mode": "100644",
+    "sha256": "150bfad110fe062b61260923f88ffae1a10f4cbb2041cac65d2edab00c6ee09c"
+  },
+  "snapshot/home/.config/gtk-4.0/settings.ini": {
+    "mode": "100644",
+    "sha256": "12382a5e27103acd99bc1eb0f2c62f1f03a09393ed0a4fa136c7980459fa1f2e"
+  },
+  "snapshot/home/.config/gtk-4.0/thunar.css": {
+    "mode": "100644",
+    "sha256": "d65612a59e4723f959adf9c5fb70e5169d79107d33762bbe16c0a2afa95e7a2c"
+  },
   "snapshot/home/.config/hypr/hypr-user.conf": {
     "mode": "100644",
     "sha256": "7b3c157a64c62f98214e28e956f007036c5d401e35e4220b010dc491c00ba2ee"
   },
   "snapshot/home/.config/hypr/hypr-user.lua": {
     "mode": "100644",
-    "sha256": "4e483d152da8af9456e15ed3939316e7099d01ddb1c6bc4892cd1b26aa0fc299"
+    "sha256": "c4e92881466052a63b1cd842d4bbd27f20fbc4f64e590498ecfd405d6cc0a7dc"
   },
   "snapshot/home/.config/hypr/hypr-vars.lua": {
     "mode": "100644",
@@ -221,11 +261,11 @@
   },
   "snapshot/home/.config/hypr/scripts/restore-serp-notch-hover.py": {
     "mode": "100755",
-    "sha256": "11fa665b4046f283cddd88977d71ae5ffb17b99cbb534ef368dcb08ea8d8b053"
+    "sha256": "6a6a53f0b376b39148b29e3267d7b7ac5f297962112dbb373fc8e78b18f64e69"
   },
   "snapshot/home/.config/hypr/scripts/restore-serp-notch-outline.py": {
     "mode": "100755",
-    "sha256": "c40f6f2ae28a4406106a5456fa7ae3642484f0a973d2612582ac50e78c887f24"
+    "sha256": "ebd9f41391ecabdcaa2f8508f7596b78f35a363cd27ef0a1faeb2d3a961184a3"
   },
   "snapshot/home/.config/hypr/scripts/restore-serp-notch.py": {
     "mode": "100755",
@@ -233,7 +273,7 @@
   },
   "snapshot/home/.config/hypr/scripts/restore-serp-pill-style.py": {
     "mode": "100755",
-    "sha256": "d8379013429498dd973b4b174d6d608802e157dc2f6341ae7ecaaa5dffa24a70"
+    "sha256": "f05df3b6598cb3bea2e49599219a17792d648bdd832681dbea8463104b6fe1b5"
   },
   "snapshot/home/.config/hypr/scripts/restore-serp-volume-position.py": {
     "mode": "100755",
@@ -265,11 +305,11 @@
   },
   "snapshot/home/.config/hypr/scripts/serpantinum-balanced-topbar.qml": {
     "mode": "100644",
-    "sha256": "544b4f32c2476f4737f27e1159919f018589d41d3ce4fbc8a524be0c9ecb0673"
+    "sha256": "0763f7be8d5c533d734938af03195755cf3667497c52b661cc3688e309d9d998"
   },
   "snapshot/home/.config/hypr/scripts/serpantinum-calendar-custom.qml": {
     "mode": "100644",
-    "sha256": "8d74019dfbb67677540f47496cf190f431c693a4ddb86d4c30bebb428284f67f"
+    "sha256": "1f1a1cc9847332137b8ed14a8ae21bf39affdc4a03b176430773c0cb2efe3735"
   },
   "snapshot/home/.config/hypr/scripts/serpantinum-clock-badge.qml": {
     "mode": "100644",
@@ -335,6 +375,14 @@
     "mode": "100644",
     "sha256": "5eec32913713a856df522e1d5eb42b2a548e05215f64a0327d38505eafe8bab1"
   },
+  "snapshot/home/.config/mimeapps.list": {
+    "mode": "100644",
+    "sha256": "68aa7ed850e26c29589719557bedca8f298c05678e6545ed594d4a913678e209"
+  },
+  "snapshot/home/.config/qtengine/config.json": {
+    "mode": "100644",
+    "sha256": "baa401c856c71dc576fb914edf109049a4d7758036098f034ab434e804da99b8"
+  },
   "snapshot/home/.config/serpantinum/assets/Orbitron-OFL.txt": {
     "mode": "100644",
     "sha256": "ab609b0e110d622435ff337cdf233288556e011bbf9bd0550be98846c0630819"
@@ -357,7 +405,7 @@
   },
   "snapshot/home/.config/serpantinum/settings.json": {
     "mode": "100644",
-    "sha256": "20a8d5c81f19d17364d2fadc4c29efab6d634276db7d86cde462871c694b19ee"
+    "sha256": "3b97ee816db706941daa474713c4f4f97342fe85a41cb0d99bd585fd3f79d64b"
   },
   "snapshot/home/.config/starship.toml": {
     "mode": "100644",
@@ -399,13 +447,45 @@
     "mode": "100644",
     "sha256": "3e6171b514cc6811f2e176589a16e05fe989dffa25767f2b160df77b54188a82"
   },
+  "snapshot/home/.config/uwsm/env": {
+    "mode": "100644",
+    "sha256": "b823a70b7d8daecdeb611be8d463d853fde031344a538af24a51c18bd8c72397"
+  },
+  "snapshot/home/.config/uwsm/env-hyprland": {
+    "mode": "100644",
+    "sha256": "829b5cabc80844a4aef445490e51806c4928a281fb56da34ff05cc76ddcc1525"
+  },
+  "snapshot/home/.config/xdg-desktop-portal/portals.conf": {
+    "mode": "100644",
+    "sha256": "7d0eb3083e01464772445a1dfd4fcaa6bff2004a3b14d5587dc581eb551bec84"
+  },
+  "snapshot/home/.config/xsettingsd/xsettingsd.conf": {
+    "mode": "100644",
+    "sha256": "277bb0f7f766ae7b4cb03ee1068a447ae6f55277752da7f676c3f1afd8b6a7dd"
+  },
   "snapshot/home/.face": {
     "mode": "100644",
     "sha256": "e00c1ec59950652d573893a3c1dbc66047a657f3eeae23aa5bdcf6cfc8bb73a0"
   },
+  "snapshot/home/.local/bin/alarm": {
+    "mode": "100755",
+    "sha256": "308f3461516b021b56fa5c440a22e75af29bc3aa5b698cbd132afbd37aa314cc"
+  },
+  "snapshot/home/.local/bin/celluloid": {
+    "mode": "100755",
+    "sha256": "069b7d65c1ad7f043465de1a2046e31351700ec65670f44f15aa93ad31e751f4"
+  },
+  "snapshot/home/.local/bin/celluloid-x11": {
+    "mode": "100755",
+    "sha256": "df4f7ec2ca5b3968cae70d74377e9b33adf3156b7e79904cba9c3dad5e46034d"
+  },
   "snapshot/home/.local/bin/hyprmod": {
     "mode": "100755",
     "sha256": "625a76497e2caa6fd1e9bff8b9bfff55374d0aa3698ff00311cc73f2e2b69443"
+  },
+  "snapshot/home/.local/bin/low-alarm": {
+    "mode": "100755",
+    "sha256": "687c29c718fd6d576390aed1fe317fb6e7b4b70e38e1892f341f85a8fc15d0a6"
   },
   "snapshot/home/.local/bin/serp-bar-auto": {
     "mode": "100755",
@@ -423,6 +503,26 @@
     "mode": "100755",
     "sha256": "96ad3b92602045571210b1f4381edd03c5d1e5f81464926d229728fc1a16c9fe"
   },
+  "snapshot/home/.local/share/applications/io.github.bluemancz.hyprmod.desktop": {
+    "mode": "100644",
+    "sha256": "d7b753f1e76f69516b2e160dadbd68dbff2ae79dc037425df151415240d5b214"
+  },
+  "snapshot/home/.local/share/applications/io.github.celluloid_player.Celluloid.desktop": {
+    "mode": "100644",
+    "sha256": "8f01f2bb04a9f82931bdfbbc370f405f185f38e40f61499bd601c21e88487ea8"
+  },
+  "snapshot/home/.local/share/applications/serpantinum-settings.desktop": {
+    "mode": "100644",
+    "sha256": "ef8b678bbbc1ce7bb94174f22b147bec6508ab7d36f7c6006054a8d22f01df47"
+  },
+  "snapshot/home/.local/share/applications/ski.desktop": {
+    "mode": "100644",
+    "sha256": "7dedcab7fee00916ace097aebd09bc4b5aae1217ec9adfcdb446dd07d8b79d85"
+  },
+  "snapshot/home/.local/share/icons/default/index.theme": {
+    "mode": "100644",
+    "sha256": "3e767e54a0353937f527b15f3fac5e5b5ad1efd1cb6da72f08b9598fa3a22b5f"
+  },
   "snapshot/home/.local/share/icons/hicolor/512x512/apps/brave-cifhbcnohmdccbgoicgdjpfamggdegmo-Default.png": {
     "mode": "100644",
     "sha256": "a18253079c46b7b4ee527a827bf82c3cdb9217fe3d55e6bb9a0228d40150e412"
@@ -430,6 +530,10 @@
   "snapshot/home/.local/share/serpantinum-calendar/remind.py": {
     "mode": "100644",
     "sha256": "97f0983de4b28e48b5fab09bff1d6d286077ae33e50a733df139b0e503bc246a"
+  },
+  "snapshot/home/.local/share/wayland-sessions/hyprland-uwsm.desktop": {
+    "mode": "100644",
+    "sha256": "af4f4d9ed4a4b9b6618a5442bdd8249daaab44ad5d50d7b7864cc0345a3e257b"
   },
   "snapshot/home/.local/state/active-shell": {
     "mode": "100644",
@@ -457,7 +561,7 @@
   },
   "snapshot/home/.local/state/serpantinum/desktop-presets/EvhOS current.json": {
     "mode": "100644",
-    "sha256": "e993b03b073daa6d282203e2e9c08a56f7fa41cf45c788c9511ed6d62211ce3b"
+    "sha256": "0c55c2576fafc2291d44fca5b7d8735f0c2030b62fed7b215eda748693f47540"
   },
   "snapshot/home/.local/state/serpantinum/desktop-presets/aa.json": {
     "mode": "100644",
@@ -577,7 +681,7 @@
   },
   "snapshot/metadata.json": {
     "mode": "100644",
-    "sha256": "3fc15b77312c2f8775ae1a0c09a2019823f565102146132cd84fb8f5693f4d9c"
+    "sha256": "7f20c3ef3f0218c3aaf521327ca2e4b458aa34ee1cf5e2d08daf211560cbca5c"
   },
   "snapshot/shell/bin/serpantinum": {
     "mode": "100755",
@@ -1677,7 +1781,7 @@
   },
   "snapshot/shell/src/quickshell/Shell.qml": {
     "mode": "100644",
-    "sha256": "148065ebf5c704e8565fd60fc31ec9b98cdf8d2c69e21c511acba8485679742d"
+    "sha256": "a13277002d688b0fda3a2f06f068bfb300e60687d4ab4f86bc9a8484874233ff"
   },
   "snapshot/shell/src/quickshell/WindowRegistry.js": {
     "mode": "100644",
@@ -1685,7 +1789,7 @@
   },
   "snapshot/shell/src/quickshell/bar/Bar.qml": {
     "mode": "100644",
-    "sha256": "761440ed6f6714a320d88b28ecc927b90901a0aff9b3e73a657abc437a40fcd7"
+    "sha256": "2b26dd61e0360e167869be61ea6a93a08f7a32c1e3e9e50e1dbcdf245d7267b4"
   },
   "snapshot/shell/src/quickshell/bar/BarModule.qml": {
     "mode": "100644",
@@ -1701,7 +1805,7 @@
   },
   "snapshot/shell/src/quickshell/bar/TopBar.qml": {
     "mode": "100644",
-    "sha256": "544b4f32c2476f4737f27e1159919f018589d41d3ce4fbc8a524be0c9ecb0673"
+    "sha256": "0763f7be8d5c533d734938af03195755cf3667497c52b661cc3688e309d9d998"
   },
   "snapshot/shell/src/quickshell/bar/faces/bat/BatFace.qml": {
     "mode": "100644",
@@ -1805,7 +1909,7 @@
   },
   "snapshot/shell/src/quickshell/calendar/CalendarPopup.qml": {
     "mode": "100644",
-    "sha256": "8d74019dfbb67677540f47496cf190f431c693a4ddb86d4c30bebb428284f67f"
+    "sha256": "1f1a1cc9847332137b8ed14a8ae21bf39affdc4a03b176430773c0cb2efe3735"
   },
   "snapshot/shell/src/quickshell/calendar/WeatherMatrixText.qml": {
     "mode": "100644",
@@ -2353,7 +2457,7 @@
   },
   "snapshot/shell/src/quickshell/lock/Lock.qml": {
     "mode": "100644",
-    "sha256": "3fb21c26f86950803d46f83ceaea1c22cbb593eca9d7fe9a0ea4739cf7eafee2"
+    "sha256": "b24da8801f0bd8d9b9122df612fef5168290b2ab018128198930153011841e04"
   },
   "snapshot/shell/src/quickshell/lock/LockBackdrop.qml": {
     "mode": "100644",
@@ -2543,6 +2647,34 @@
     "mode": "100644",
     "sha256": "ad2f75380725b5d00f9457ada5ebad03165ac36f54a7d13569e469690b55e584"
   },
+  "snapshot/shell/src/quickshell/nacht/CalendarSchedule.js": {
+    "mode": "100644",
+    "sha256": "232a9854bc4f90365e5d7dd64797df9e218dae59ba4c55cdc644fcd3e96c92dc"
+  },
+  "snapshot/shell/src/quickshell/nacht/GoogleCalendarRange.qml": {
+    "mode": "100644",
+    "sha256": "bb3412d057ff4136c687fd4f9fcd1981009e5f385c183cc1d981f422ba623ba4"
+  },
+  "snapshot/shell/src/quickshell/nacht/NachtButton.qml": {
+    "mode": "100644",
+    "sha256": "cbb58e7b5c2d3a6468ab71d03433535be57d296d93ad748d77f314a28c1ed5b2"
+  },
+  "snapshot/shell/src/quickshell/nacht/NachtCalendar.qml": {
+    "mode": "100644",
+    "sha256": "8f664bf544058874df23cc5d04053244fbac294dfbf47d282e25b388aa3b3acd"
+  },
+  "snapshot/shell/src/quickshell/nacht/NachtCalendarPanel.qml": {
+    "mode": "100644",
+    "sha256": "a614cb8a52c615b3796bf7710de0be8ffb0ea3e397e6a41d82c21d45c47c7b70"
+  },
+  "snapshot/shell/src/quickshell/nacht/NachtOverlay.qml": {
+    "mode": "100644",
+    "sha256": "61850daf382416021b356d2cc907453a3224ca8fb4dd99b9bbf82e385e2a9814"
+  },
+  "snapshot/shell/src/quickshell/nacht/google_calendar.py": {
+    "mode": "100644",
+    "sha256": "842119422d8c6e03a58aeb83868942adbbbf16dbc9cb34c8383e1706a830aaec"
+  },
   "snapshot/shell/src/quickshell/network/LoadingDots.qml": {
     "mode": "100644",
     "sha256": "6cde5af975d5cb1b21f7985e5c3619e101a8f8e709486996492a4e5a042ddfb9"
@@ -2657,7 +2789,7 @@
   },
   "snapshot/shell/src/quickshell/popouts/TrayBase.qml": {
     "mode": "100644",
-    "sha256": "35bee4b7d26825b4f1e1a89627ce35174decb2655654fb9e17d9947d04966681"
+    "sha256": "9dc4c49f017a4696622f991e199980caa0262684e1d982afe02b4821ee86fd33"
   },
   "snapshot/shell/src/quickshell/privacy/PrivacyOverlay.qml": {
     "mode": "100644",
@@ -2665,7 +2797,7 @@
   },
   "snapshot/shell/src/quickshell/qmldir": {
     "mode": "100644",
-    "sha256": "6789b8a8e3a48e2db0fab21e8bfe6c718eac0c37f46a9b0b666bb6f2d18133e6"
+    "sha256": "bb989cb413159898694d56a98cf9d4d3531f49ce0833d3321223373ef5b0c1a5"
   },
   "snapshot/shell/src/quickshell/quickactions/Floating.qml": {
     "mode": "100644",
@@ -3157,7 +3289,7 @@
   },
   "snapshot/shell/src/quickshell/singletons/widgetcontrols/TrayMenuController.qml": {
     "mode": "100644",
-    "sha256": "12fba3f3ae344fc5ceab0d2132329f4400d949ba6ef39f355225578b4eb6ac67"
+    "sha256": "8eaca199e3f2357161e7548ed49c76289796446b7782e06ee84994f09d211705"
   },
   "snapshot/shell/src/quickshell/singletons/widgetcontrols/WidgetSync.qml": {
     "mode": "100644",

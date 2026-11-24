@@ -3,6 +3,11 @@ Dim 1.0 Dim.qml
 Main 1.0 Main.qml
 
 Bar 1.0 bar/Bar.qml
+NachtOverlay 1.0 nacht/NachtOverlay.qml
+NachtCalendarPanel 1.0 nacht/NachtCalendarPanel.qml
+GoogleCalendarRange 1.0 nacht/GoogleCalendarRange.qml
+NachtButton 1.0 nacht/NachtButton.qml
+singleton NachtCalendar 1.0 nacht/NachtCalendar.qml
 Floating 1.0 quickactions/Floating.qml
 FloatingEdgeTrigger 1.0 quickactions/FloatingEdgeTrigger.qml
 Clipboard 1.0 clipboard/Clipboard.qml

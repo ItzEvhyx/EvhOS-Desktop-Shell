@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/icons/header.svg" alt="EvhOS, a personal Wayland desktop built with Hyprland and Quickshell" width="100%">
   <p>A customized Serpantinum shell with a floating bar, workspaces, desktop themes, and built-in tools.</p>
-  <p><a href="#preview">Screenshots</a> &nbsp; / &nbsp; <a href="#features">Features</a> &nbsp; / &nbsp; <a href="#installation">Installation</a> &nbsp; / &nbsp; <a href="#configuration">Configuration</a> &nbsp; / &nbsp; <a href="#recovery">Recovery</a></p>
+  <p><a href="#preview">Screenshots</a> &nbsp; / &nbsp; <a href="#features">Features</a> &nbsp; / &nbsp; <a href="#installation">Installation</a> &nbsp; / &nbsp; <a href="#manual-restoration">Restore</a> &nbsp; / &nbsp; <a href="#configuration">Configuration</a> &nbsp; / &nbsp; <a href="#recovery">Recovery</a></p>
 </div>
 
 ## Preview
@@ -108,6 +108,7 @@ For distro details, service behavior, and SDDM recovery, see the [installation g
 | `snapshot/home/.config/hypr/hypr-user.lua` | Active personal Hyprland bindings, rules, and shell controls. |
 | `snapshot/home/.config/hypr/hyprmod/` | Active HyprMod profile, including monitor and input defaults. |
 | `snapshot/home/.config/hyprmod-theme/` | Local HyprMod glass styling used by the included launcher. |
+| `snapshot/home/.config/` | UWSM session environment, GTK and Qt appearance, portal settings, and default app associations. |
 | `snapshot/icon-packs/` | Compressed icon packs, expanded into the user's icon directory by the restore. |
 | `packages/` | Exact CachyOS package inventories for review; they are never installed automatically. |
 | `snapshot/system/sddm-obsidian-frame/` | Current SDDM greeter and profile artwork. |
@@ -133,7 +134,7 @@ The checkpoint bundles referenced wallpapers and existing seed images, rather th
 
 ## Capturing and checking changes
 
-The November 17, 2026 checkpoint includes the current shell, gestures, workspace focus handoff, launcher, privacy mode, wallpaper discovery, calendar/weather, media player, saved artwork mode, volume cards, 12-hour clock, boot animation and saved desktop layouts. Its [`snapshot/manifest.json`](snapshot/manifest.json) records file hashes, Git permission modes and symlink targets. Restoration verifies the manifest and bundled media references before writing files.
+The November 24, 2026 checkpoint includes the live Hyprland and shell setup, Nacht and Google Calendar support, GTK and Qt appearance, UWSM session settings, desktop launchers, saved desktop layouts, and the SDDM, GRUB and Plymouth themes. Its [`snapshot/manifest.json`](snapshot/manifest.json) records file hashes, Git permission modes and symlink targets. Restoration verifies the manifest and bundled media references before writing files.
 
 ```sh
 python3 tools/capture-live.py          # preview allowlisted live files
@@ -144,6 +145,14 @@ python3 tools/run-checks.py
 Optional system appearance assets listed in `tools/capture-spec.json` are captured when installed; home restoration does not write system directories. Capture discovers new source files in managed shell directories and new saved presets, excludes runtime histories/backups and scans for credential-like content. Review `git diff` before committing, including licensing for new assets. It only captures allowlisted home configuration plus referenced wallpapers; add deliberately chosen home files to `tools/capture-spec.json` when needed. For reviewed edits made directly inside `snapshot/`, regenerate the manifest with `python3 tools/check-snapshot.py --update`, then run the checks.
 
 Install Pillow, FFmpeg and Lua 5.4 for the full portable suite. Checks cover snapshot integrity, media references, new-media discovery, refreshed video posters, project/file search, workspace focus handoff against compositor fixtures, preset failure recovery, mocked installers and a two-pass restore with backups in a temporary home. GitHub Actions runs the same suite on pushes and pull requests. These checks do not emulate real touchpad input, compositor rendering or a fresh distro installation.
+
+## Nacht the Notch · Google Calendar
+
+Open the clock’s Calendar panel and select **Nacht**. Timed Calendar events appear in Upcoming on their day. While your account is connected, Nacht refreshes every five seconds near an event and every 15 seconds at other times. The 20-minute preview closes on its own. The 10-minute reminder retracts to a clickable countdown. At the start, **Join meeting** opens the video call when available. **Open event** opens the Google Calendar entry.
+
+The clock’s month view also reads events from the connected primary Google Calendar. Dates with Google events have a colored marker. Open a marked date to view its timed and all-day events alongside your local entry. Google events open in the browser and local edits stay in the shell’s local calendar file.
+
+For live meetings, enable the Google Calendar API in your Google Cloud project, configure its OAuth consent audience, and create a **Desktop app** OAuth client. In Nacht, choose the downloaded client JSON and select **Connect**. The browser will ask for read-only access to your primary calendar. A working Linux Secret Service keyring and `secret-tool` are needed to store the connection. Keep the OAuth file local. [Google Calendar API setup](https://developers.google.com/workspace/calendar/api/quickstart/python) · [Google OAuth desktop setup](https://developers.google.com/identity/protocols/oauth2/native-app)
 
 ## Snapshot clock and rollback
 
@@ -189,14 +198,21 @@ python3 tools/snapshot-clock.py mark-broken 20261123-120000-compact-bar-tuning -
 
 ## Manual restoration
 
-If dependencies are already installed and you only want the saved files:
+If the desktop dependencies are already installed, run these commands from the repository root as your desktop user. On an existing clone, update `main` first with `git pull --ff-only`.
 
 ```sh
 python3 restore.py --build-rich-notes          # preview
 python3 restore.py --apply --build-rich-notes  # restore with backups
 ```
 
-The restore rewrites the captured home path in UTF-8 configuration files and symlink targets and saves replaced files under `~/.local/state/evhos-backups/`. You can test it in a disposable directory with `python3 restore.py --home /tmp/evhos-test --apply --build-rich-notes`.
+To restore the exact November 24 capture after `main` moves forward, fetch its candidate tag and run the pinned restore.
+
+```sh
+git fetch origin tag evhos/snapshot/20261124-075830-current-desktop
+python3 tools/snapshot-clock.py rollback 20261124-075830-current-desktop --apply --build-rich-notes
+```
+
+The restore rewrites the captured home path in UTF-8 configuration files and symlink targets and saves replaced files under `~/.local/state/evhos-backups/`. You can test it in a disposable directory by adding `--home "$(mktemp -d)"` to either apply command. Use [Installation](#installation) for dependencies and user services, and the [installation guide](docs/INSTALL.md) for the system themes and optional desktop components.
 
 ## Recovery
 

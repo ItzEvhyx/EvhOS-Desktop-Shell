@@ -184,8 +184,18 @@ Variants {
                 return (typeof Config !== "undefined" && Config.rawSettings && Config.rawSettings.bar && Config.rawSettings.bar.autohideTimeout !== undefined) ? Config.rawSettings.bar.autohideTimeout : 1000;
             }
             property real barOpacity: 0.78 // local glass style
-            property real notchHoverStrength: (barStyle === "solid" && barPosition === "top" && (barHover.hovered || (TrayMenuController.isVisible && TrayMenuController.screen === barWindowRoot.screen))) ? 0.12 : 0
-            Behavior on notchHoverStrength { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+            readonly property bool hoverableNotch: barStyle === "solid" && barPosition === "top"
+            property real notchHoverProgress: hoverableNotch && isRevealed && !positionChanging && loginProgress === 1
+                && (barHover.hovered || (TrayMenuController.isVisible && TrayMenuController.screen === screen)) ? 1 : 0
+            Behavior on notchHoverProgress { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+            readonly property real notchHoverHeightGrowth: 0.10
+            readonly property real notchScaleX: Math.max(1, Math.min(1 + 0.06 * notchHoverProgress,
+                horizontalAvailableWidth / Math.max(1, currentBarMaxX - currentBarMinX)))
+            readonly property real notchScaleY: 1 + notchHoverHeightGrowth * notchHoverProgress
+            readonly property real notchHoverHeadroom: hoverableNotch ? Math.ceil(barHeight * notchHoverHeightGrowth) : 0
+            readonly property real notchPivotX: horizontalAvailableWidth / 2
+            readonly property real scaledBarMinX: notchPivotX + (currentBarMinX - notchPivotX) * notchScaleX
+            readonly property real scaledBarMaxX: notchPivotX + (currentBarMaxX - notchPivotX) * notchScaleX
 
             HoverHandler {
                 id: barHover
@@ -318,13 +328,22 @@ Variants {
                 let sw = screen.width, sh = screen.height;
                 let margin = (isFill || autohide) ? 0 : s(4);
                 let thick = barHeight + edgePadding + margin;
+                const topSlide = barPosition === "top" && horizontalLayout
+                    ? horizontalLayout.slideOffsetY * notchScaleY - loginSlide : 0;
+                const bottom = margins.top + (baseOffsetY + barHeight) * notchScaleY + topSlide;
                 return {
                     position: barPosition,
-                    x: isVertical ? (barPosition === "right" ? sw - thick : margin) : currentBarMinX,
+                    x: isVertical ? (barPosition === "right" ? sw - thick : margin) : scaledBarMinX,
                     y: isVertical ? currentBarMinY : (barPosition === "bottom" ? sh - thick : margin),
-                    width: isVertical ? barHeight + edgePadding : Math.max(1, currentBarMaxX - currentBarMinX),
-                    height: isVertical ? Math.max(1, currentBarMaxY - currentBarMinY) : barHeight + edgePadding,
-                    revealed: isRevealed && !shouldHideForRedact
+                    width: isVertical ? barHeight + edgePadding : Math.max(1, scaledBarMaxX - scaledBarMinX),
+                    height: isVertical ? Math.max(1, currentBarMaxY - currentBarMinY) : (barHeight + edgePadding) * notchScaleY,
+                    backgroundOpacity: barOpacity,
+                    revealed: isRevealed && !shouldHideForRedact,
+                    workspaceEmpty: localWorkspaceKey !== "" && !localWorkspaceBusy,
+                    fullscreen: isFullscreenActive,
+                    notchCenterX: margins.left + (scaledBarMinX + scaledBarMaxX) / 2,
+                    notchBottom: visible && !positionChanging ? Math.max(0, bottom) : 0,
+                    notchBottomLimit: margins.top + baseOffsetY + barHeight + notchHoverHeadroom
                 };
             }
             onPublishedGeometryChanged: if (screen && publishedGeometry) BarGeometry.publish(screen.name, publishedGeometry)
@@ -369,7 +388,7 @@ Variants {
                 right: barPosition === "right" || !barWindowRoot.isVertical
             }
 
-            implicitHeight: barWindowRoot.isVertical ? 0 : (barHeight + (isFill ? cornerRadius : edgePadding))
+            implicitHeight: barWindowRoot.isVertical ? 0 : barHeight + (isFill ? cornerRadius : edgePadding) + notchHoverHeadroom
             implicitWidth: barWindowRoot.isVertical ? (barHeight + (isFill ? cornerRadius : edgePadding)) : 0
 
             margins {
@@ -387,10 +406,11 @@ Variants {
 
             mask: Region {
                 Region {
-                    x: barWindowRoot.isVertical ? (barWindowRoot.barPosition === "right" ? (barWindowRoot.width - barWindowRoot.activeMaskWidth) : 0) : barWindowRoot.currentBarMinX
+                    x: barWindowRoot.isVertical ? (barWindowRoot.barPosition === "right" ? (barWindowRoot.width - barWindowRoot.activeMaskWidth) : 0) : barWindowRoot.scaledBarMinX
                     y: barWindowRoot.isVertical ? barWindowRoot.currentBarMinY : (barWindowRoot.barPosition === "bottom" ? barWindowRoot.baseOffsetY : 0)
-                    width: barWindowRoot.loginProgress < 1 ? 0 : (barWindowRoot.isVertical ? barWindowRoot.activeMaskWidth : (barWindowRoot.currentBarMaxX - barWindowRoot.currentBarMinX))
-                    height: barWindowRoot.isVertical ? (barWindowRoot.currentBarMaxY - barWindowRoot.currentBarMinY) : (isFill ? barWindowRoot.barHeight : barWindowRoot.activeMaskHeight)
+                    width: barWindowRoot.loginProgress < 1 ? 0 : (barWindowRoot.isVertical ? barWindowRoot.activeMaskWidth : (barWindowRoot.scaledBarMaxX - barWindowRoot.scaledBarMinX))
+                    height: barWindowRoot.isVertical ? (barWindowRoot.currentBarMaxY - barWindowRoot.currentBarMinY)
+                        : (isFill ? barWindowRoot.barHeight : barWindowRoot.activeMaskHeight * barWindowRoot.notchScaleY)
                 }
                 Region {
                     x: barWindowRoot.isVertical ? (barWindowRoot.barPosition === "right" ? (barWindowRoot.width - barWindowRoot.barHeight - barWindowRoot.cornerRadius) : barWindowRoot.barHeight) : 0
@@ -455,10 +475,18 @@ Variants {
                 id: horizontalLoader
                 anchors.fill: parent
                 anchors.rightMargin: barWindowRoot.systemPanelInset
+                anchors.bottomMargin: barWindowRoot.notchHoverHeadroom
                 clip: barWindowRoot.systemPanelInset > 0
                 active: !barWindowRoot.isVertical
                 opacity: barWindowRoot.loginProgress
-                transform: Translate { y: barWindowRoot.barPosition === "bottom" ? barWindowRoot.loginSlide : -barWindowRoot.loginSlide }
+                transform: [
+                    Scale {
+                        origin.x: barWindowRoot.notchPivotX
+                        xScale: barWindowRoot.notchScaleX
+                        yScale: barWindowRoot.notchScaleY
+                    },
+                    Translate { y: barWindowRoot.barPosition === "bottom" ? barWindowRoot.loginSlide : -barWindowRoot.loginSlide }
+                ]
                 sourceComponent: Component {
                     TopBar {
                         barWindow: barWindowRoot

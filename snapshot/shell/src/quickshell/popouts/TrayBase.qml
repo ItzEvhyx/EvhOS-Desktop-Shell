@@ -73,7 +73,19 @@ PanelWindow {
     property bool alignRight: TrayMenuController.alignRight
     property bool alignBottom: TrayMenuController.alignBottom
     property bool isSideBar: TrayMenuController.isSideBar
-    readonly property color menuBaseColor: Qt.tint(ThemeBackend.base, Qt.alpha(ThemeBackend.text, isSolid && !isSideBar && !alignBottom ? 0.12 : 0))
+    readonly property var barGeometry: screen ? BarGeometry.bars[screen.name] : null
+    readonly property bool attachedToTopBar: isSolid && !isSideBar && !alignBottom && barGeometry?.position === "top"
+    readonly property real topBarEdge: attachedToTopBar ? Math.max(0, barGeometry.notchBottom - 0.5) : 0
+    readonly property color menuBackground: Qt.alpha(ThemeBackend.base, barGeometry?.backgroundOpacity ?? 0.78)
+
+    Binding {
+        target: TrayMenuController
+        property: "topBarAttachment"
+        value: trayMenuWindow.attachedToTopBar && menuContainer.height > 1 ? {
+            center: menuContainer.x + menuContainer.width / 2,
+            halfWidth: menuContainer.width / 2 + menuContainer.dynamicCornerRadius
+        } : null
+    }
 
     property int configRevision: 0
 
@@ -195,7 +207,8 @@ PanelWindow {
     }
 
     property real rawHeight: (menuCount * itemHeight) + s(16)
-    property real targetMenuHeight: Math.max(s(40), rawHeight)
+    property real targetMenuHeight: Math.min(Math.max(s(40), rawHeight),
+        attachedToTopBar && height > 0 ? Math.max(0, height - topBarEdge - s(8)) : Infinity)
     property real menuHeight: targetMenuHeight
 
     Behavior on menuHeight {
@@ -225,6 +238,7 @@ PanelWindow {
     }
 
     property real clampedY: {
+        if (attachedToTopBar) return topBarEdge;
         let h = menuHeight;
         let y = 0;
         if (isSideBar) {
@@ -286,11 +300,15 @@ PanelWindow {
             Behavior on animProgress {
                 NumberAnimation {
                     duration: trayMenuWindow.isVisible ? 280 : 220
-                    easing.type: Easing.OutCubic
+                    easing.type: trayMenuWindow.attachedToTopBar ? Easing.InOutCubic : Easing.OutCubic
                 }
             }
 
-            property real dynamicCornerRadius: trayMenuWindow.isSolid ? Math.max(0, Math.min(trayMenuWindow.cornerRadius, (trayMenuWindow.isSideBar ? width : height))) : 0
+            readonly property real lowerRadius: trayMenuWindow.attachedToTopBar
+                ? Math.min(trayMenuWindow.cornerRadius, Math.max(0, height - 0.5) / 2)
+                : trayMenuWindow.cornerRadius
+            readonly property real dynamicCornerRadius: trayMenuWindow.isSolid
+                ? Math.min(lowerRadius, trayMenuWindow.isSideBar ? width : height) : 0
 
             x: {
                 if (trayMenuWindow.isSolid) {
@@ -340,7 +358,7 @@ PanelWindow {
                 return trayMenuWindow.menuHeight;
             }
 
-            opacity: animProgress
+            opacity: trayMenuWindow.attachedToTopBar ? 1 : animProgress
             scale: !trayMenuWindow.isSolid ? (0.92 + (0.08 * animProgress)) : 1.0
 
             transformOrigin: {
@@ -382,7 +400,7 @@ PanelWindow {
                     }
                     return trayMenuWindow.alignBottom ? 3.0 : 1.0;
                 }
-                property color color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
+                property color color: trayMenuWindow.menuBackground
                 fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
             }
 
@@ -409,13 +427,13 @@ PanelWindow {
                     }
                     return trayMenuWindow.alignBottom ? 2.0 : 0.0;
                 }
-                property color color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
+                property color color: trayMenuWindow.menuBackground
                 fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
             }
 
             // Continue the notch outline over the two shoulders and around the menu.
             Shape {
-                visible: trayMenuWindow.isSolid && !trayMenuWindow.isSideBar && !trayMenuWindow.alignBottom && menuContainer.height > trayMenuWindow.s(24)
+                visible: trayMenuWindow.attachedToTopBar && menuContainer.height > 1
                 x: -menuContainer.dynamicCornerRadius
                 y: 0
                 width: menuContainer.width + 2 * menuContainer.dynamicCornerRadius
@@ -431,10 +449,10 @@ PanelWindow {
                     joinStyle: ShapePath.RoundJoin
                     startX: 0; startY: 0
                     PathQuad { x: menuContainer.dynamicCornerRadius; y: menuContainer.dynamicCornerRadius; controlX: menuContainer.dynamicCornerRadius; controlY: 0 }
-                    PathLine { x: menuContainer.dynamicCornerRadius; y: menuContainer.height - trayMenuWindow.cornerRadius }
-                    PathQuad { x: menuContainer.dynamicCornerRadius + trayMenuWindow.cornerRadius; y: menuContainer.height - 0.5; controlX: menuContainer.dynamicCornerRadius; controlY: menuContainer.height - 0.5 }
-                    PathLine { x: menuContainer.dynamicCornerRadius + menuContainer.width - trayMenuWindow.cornerRadius; y: menuContainer.height - 0.5 }
-                    PathQuad { x: menuContainer.dynamicCornerRadius + menuContainer.width; y: menuContainer.height - trayMenuWindow.cornerRadius; controlX: menuContainer.dynamicCornerRadius + menuContainer.width; controlY: menuContainer.height - 0.5 }
+                    PathLine { x: menuContainer.dynamicCornerRadius; y: menuContainer.height - menuContainer.lowerRadius - 0.5 }
+                    PathQuad { x: menuContainer.dynamicCornerRadius + menuContainer.lowerRadius; y: menuContainer.height - 0.5; controlX: menuContainer.dynamicCornerRadius; controlY: menuContainer.height - 0.5 }
+                    PathLine { x: menuContainer.dynamicCornerRadius + menuContainer.width - menuContainer.lowerRadius; y: menuContainer.height - 0.5 }
+                    PathQuad { x: menuContainer.dynamicCornerRadius + menuContainer.width; y: menuContainer.height - menuContainer.lowerRadius - 0.5; controlX: menuContainer.dynamicCornerRadius + menuContainer.width; controlY: menuContainer.height - 0.5 }
                     PathLine { x: menuContainer.dynamicCornerRadius + menuContainer.width; y: menuContainer.dynamicCornerRadius }
                     PathQuad { x: menuContainer.width + 2 * menuContainer.dynamicCornerRadius; y: 0; controlX: menuContainer.dynamicCornerRadius + menuContainer.width; controlY: 0 }
                 }
@@ -443,15 +461,15 @@ PanelWindow {
             Rectangle {
                 id: menuBox
                 anchors.fill: parent
-                color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
-                radius: trayMenuWindow.cornerRadius
-                border.width: trayMenuWindow.isSolid && !trayMenuWindow.isSideBar && !trayMenuWindow.alignBottom ? 0 : 1
+                color: trayMenuWindow.menuBackground
+                radius: menuContainer.lowerRadius
+                border.width: trayMenuWindow.attachedToTopBar ? 0 : 1
                 border.color: Qt.alpha(ThemeBackend.text, 0.14)
                 readonly property bool flatCorners: trayMenuWindow.isSolid
-                topLeftRadius: (flatCorners && (trayMenuWindow.isSideBar ? !trayMenuWindow.alignRight : !trayMenuWindow.alignBottom)) ? 0 : trayMenuWindow.cornerRadius
-                topRightRadius: (flatCorners && (trayMenuWindow.isSideBar ? trayMenuWindow.alignRight : !trayMenuWindow.alignBottom)) ? 0 : trayMenuWindow.cornerRadius
-                bottomLeftRadius: (flatCorners && (trayMenuWindow.isSideBar ? !trayMenuWindow.alignRight : trayMenuWindow.alignBottom)) ? 0 : trayMenuWindow.cornerRadius
-                bottomRightRadius: (flatCorners && (trayMenuWindow.isSideBar ? trayMenuWindow.alignRight : trayMenuWindow.alignBottom)) ? 0 : trayMenuWindow.cornerRadius
+                topLeftRadius: (flatCorners && (trayMenuWindow.isSideBar ? !trayMenuWindow.alignRight : !trayMenuWindow.alignBottom)) ? 0 : radius
+                topRightRadius: (flatCorners && (trayMenuWindow.isSideBar ? trayMenuWindow.alignRight : !trayMenuWindow.alignBottom)) ? 0 : radius
+                bottomLeftRadius: (flatCorners && (trayMenuWindow.isSideBar ? !trayMenuWindow.alignRight : trayMenuWindow.alignBottom)) ? 0 : radius
+                bottomRightRadius: (flatCorners && (trayMenuWindow.isSideBar ? trayMenuWindow.alignRight : trayMenuWindow.alignBottom)) ? 0 : radius
                 clip: true
 
                 WallpaperBlur {
@@ -492,58 +510,18 @@ PanelWindow {
                     spacing: 0
                     cacheBuffer: 3000
                     interactive: contentHeight > height
-                    property Item hoverItem: null
-
-                    GlassLens {
-                        id: rootHoverLens
-                        z: -1
-                        targetX: menuList.hoverItem ? menuList.hoverItem.x : 0
-                        targetY: menuList.hoverItem ? menuList.hoverItem.y : 0
-                        targetWidth: menuList.hoverItem ? menuList.hoverItem.width : 0
-                        targetHeight: menuList.hoverItem ? menuList.hoverItem.height : 0
-                        radius: trayMenuWindow.s(8)
-                        tintColor: ThemeBackend.surface0
-                        tintAmount: 0.3
-                        shadow: 0
-                        restPress: 0.2
-                        magnify: trayMenuWindow.s(3)
-                        press: menuList.hoverItem && menuList.hoverItem.pressed ? 0.8 : 0
-                    }
 
                     delegate: Item {
                         id: rootItemDelegate
                         width: menuList.width
                         height: trayMenuWindow.itemHeight
-                        readonly property bool pressed: itemMouse.pressed
-                        readonly property bool lensWanted: itemMouse.containsMouse
-
-                        onLensWantedChanged: {
-                            if (lensWanted) menuList.hoverItem = rootItemDelegate;
-                            else if (menuList.hoverItem === rootItemDelegate) menuList.hoverItem = null;
-                        }
-                        Component.onDestruction: {
-                            if (menuList.hoverItem === rootItemDelegate) menuList.hoverItem = null;
-                        }
-
                         property bool isSep: modelData ? modelData.isSeparator : false
                         property bool hasChildren: modelData ? (modelData.hasChildren === true) : false
 
-                        Rectangle {
+                        Item {
                             anchors.fill: parent
                             visible: !rootItemDelegate.isSep
-                            radius: trayMenuWindow.s(8)
-                            color: (rootHoverGlass.active || rootHoverLens.glassActive) ? "transparent" : (itemMouse.containsMouse ? Qt.alpha(ThemeBackend.text, 0.10) : "transparent")
                             opacity: (modelData && modelData.enabled) ? 1.0 : 0.4
-
-                            GlassFill {
-                                id: rootHoverGlass
-                                anchors.fill: parent
-                                radius: parent.radius
-                                allowed: itemMouse.containsMouse && !rootHoverLens.glassActive
-                                tintColor: ThemeBackend.surface0
-                                tintAmount: 0.3
-                                press: itemMouse.pressed ? 0.8 : 0.2
-                            }
 
                             Image {
                                 id: itemIcon
@@ -585,7 +563,6 @@ PanelWindow {
                             }
 
                             MouseArea {
-                                id: itemMouse
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 enabled: modelData ? modelData.enabled : false
@@ -728,7 +705,7 @@ PanelWindow {
                     height: submenuPopout.subCornerRadius
                     property vector2d itemSize: Qt.vector2d(width, height)
                     property real cornerIndex: submenuPopout.expandRight ? 2.0 : 3.0
-                    property color color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
+                    property color color: trayMenuWindow.menuBackground
                     fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
                 }
 
@@ -740,14 +717,14 @@ PanelWindow {
                     height: submenuPopout.subCornerRadius
                     property vector2d itemSize: Qt.vector2d(width, height)
                     property real cornerIndex: submenuPopout.expandRight ? 0.0 : 1.0
-                    property color color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
+                    property color color: trayMenuWindow.menuBackground
                     fragmentShader: "file://" + Caching.serpantinumDir + "/assets/shaders/ui/corner_cutout.frag.qsb"
                 }
 
                 Rectangle {
                     id: subMenuBox
                     anchors.fill: parent
-                    color: Qt.alpha(trayMenuWindow.menuBaseColor, 0.78)
+                    color: trayMenuWindow.menuBackground
                     radius: trayMenuWindow.cornerRadius
                     border.width: 1
                     border.color: Qt.alpha(ThemeBackend.text, 0.14)
@@ -794,58 +771,18 @@ PanelWindow {
                         spacing: 0
                         cacheBuffer: 3000
                         interactive: contentHeight > height
-                        property Item hoverItem: null
-
-                        GlassLens {
-                            id: subHoverLens
-                            z: -1
-                            targetX: subListView.hoverItem ? subListView.hoverItem.x : 0
-                            targetY: subListView.hoverItem ? subListView.hoverItem.y : 0
-                            targetWidth: subListView.hoverItem ? subListView.hoverItem.width : 0
-                            targetHeight: subListView.hoverItem ? subListView.hoverItem.height : 0
-                            radius: trayMenuWindow.s(8)
-                            tintColor: ThemeBackend.surface0
-                            tintAmount: 0.3
-                            shadow: 0
-                            restPress: 0.2
-                            magnify: trayMenuWindow.s(3)
-                            press: subListView.hoverItem && subListView.hoverItem.pressed ? 0.8 : 0
-                        }
 
                         delegate: Item {
                             id: subItemDelegate
                             width: subListView.width
                             height: trayMenuWindow.itemHeight
-                            readonly property bool pressed: subItemMouse.pressed
-                            readonly property bool lensWanted: subItemMouse.containsMouse
-
-                            onLensWantedChanged: {
-                                if (lensWanted) subListView.hoverItem = subItemDelegate;
-                                else if (subListView.hoverItem === subItemDelegate) subListView.hoverItem = null;
-                            }
-                            Component.onDestruction: {
-                                if (subListView.hoverItem === subItemDelegate) subListView.hoverItem = null;
-                            }
-
                             property bool isSep: modelData ? modelData.isSeparator : false
                             property bool hasChildren: modelData ? (modelData.hasChildren === true) : false
 
-                            Rectangle {
+                            Item {
                                 anchors.fill: parent
                                 visible: !subItemDelegate.isSep
-                                radius: trayMenuWindow.s(8)
-                                color: (subHoverGlass.active || subHoverLens.glassActive) ? "transparent" : (subItemMouse.containsMouse ? Qt.alpha(ThemeBackend.text, 0.10) : "transparent")
                                 opacity: (modelData && modelData.enabled) ? 1.0 : 0.4
-
-                                GlassFill {
-                                    id: subHoverGlass
-                                    anchors.fill: parent
-                                    radius: parent.radius
-                                    allowed: subItemMouse.containsMouse && !subHoverLens.glassActive
-                                    tintColor: ThemeBackend.surface0
-                                    tintAmount: 0.3
-                                    press: subItemMouse.pressed ? 0.8 : 0.2
-                                }
 
                                 Image {
                                     id: subItemIcon
@@ -887,7 +824,6 @@ PanelWindow {
                                 }
 
                                 MouseArea {
-                                    id: subItemMouse
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     enabled: modelData ? modelData.enabled : false

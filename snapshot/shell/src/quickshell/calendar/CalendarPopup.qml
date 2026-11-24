@@ -12,6 +12,7 @@ Item {
     id: window
     visible: false
     focus: true
+    property bool nachtOpen: false
 
     function s(val) {
         return Scaler.s(val);
@@ -33,7 +34,7 @@ Item {
 
     Shortcut {
         sequence: "Left"
-        enabled: window.visible && !window.editingEvent
+        enabled: window.visible && !window.editingEvent && !window.dayOpen && !window.nachtOpen
         onActivated: {
             if (calHover.hovered) {
                 window.setMonthOffset(window.targetMonthOffset - 1);
@@ -45,7 +46,7 @@ Item {
 
     Shortcut {
         sequence: "Right"
-        enabled: window.visible && !window.editingEvent
+        enabled: window.visible && !window.editingEvent && !window.dayOpen && !window.nachtOpen
         onActivated: {
             if (calHover.hovered) {
                 window.setMonthOffset(window.targetMonthOffset + 1);
@@ -140,6 +141,8 @@ Item {
             resetAndPlayIntro();
         } else {
             editingEvent = false;
+            dayOpen = false;
+            nachtOpen = false;
             introAnim.stop();
             exitAnim.stop();
             weatherTransitionAnim.stop();
@@ -362,6 +365,16 @@ Item {
     property var calendarEvents: ({})
     property string selectedDate: ""
     property bool editingEvent: false
+    property bool dayOpen: false
+    property date gridStart
+    readonly property var selectedGoogleEvents: googleCalendar.eventsFor(selectedDate)
+    readonly property color googleCalendarAccent: "#a68af6"
+
+    GoogleCalendarRange {
+        id: googleCalendar
+        calendarVisible: window.visible && !window.nachtOpen
+        firstDay: window.gridStart
+    }
 
     component EventButton: Button {
         id: control
@@ -411,6 +424,24 @@ Item {
     function dateKey(date) {
         return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
     }
+    function selectDay(key) {
+        selectedDate = key;
+        if (googleCalendar.eventsFor(key).length > 0 || googleCalendar.loading || googleCalendar.message)
+            dayOpen = true;
+        else openEvent(key);
+    }
+
+    function googleEventTime(event) {
+        if (event.allDay) return "All day";
+        const start = new Date(event.startMs);
+        const end = new Date(event.endMs);
+        if (dateKey(start) !== selectedDate) {
+            return dateKey(end) === selectedDate ? "Until " + Qt.formatTime(end, "h:mm AP") : "Continues";
+        }
+        return Qt.formatTime(start, "h:mm AP") + (dateKey(end) === selectedDate
+            ? " – " + Qt.formatTime(end, "h:mm AP") : "");
+    }
+
     function openEvent(key) {
         selectedDate = key;
         let event = calendarEvents[key] || {};
@@ -494,6 +525,8 @@ Item {
 
         let firstDay = new Date(targetYear, targetMonth, 1).getDay();
         firstDay = (firstDay === 0) ? 6 : firstDay - 1;
+        const firstCell = new Date(targetYear, targetMonth, 1 - firstDay);
+        if (gridStart.getTime() !== firstCell.getTime()) gridStart = firstCell;
 
         calendarModel.clear();
         for (let i = 0; i < 42; i++) {
@@ -645,6 +678,13 @@ Item {
                 z: 10
                 HoverHandler { id: calHover }
 
+                NachtCalendarPanel {
+                    anchors.fill: parent
+                    visible: window.nachtOpen
+                    z: 20
+                    onBack: window.nachtOpen = false
+                }
+
                 GlassFill {
                     id: calendarGlass
                     anchors.fill: parent
@@ -660,7 +700,7 @@ Item {
                     anchors.fill: parent
                     anchors.margins: window.s(18)
                     spacing: window.s(10)
-                    visible: !window.editingEvent
+                    visible: !window.editingEvent && !window.dayOpen && !window.nachtOpen
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -680,6 +720,11 @@ Item {
                             elide: Text.ElideRight
                             opacity: window.calendarContentOpacity
                             transform: Translate { x: window.calendarContentOffset }
+                        }
+
+                        NachtButton {
+                            text: "Nacht"
+                            onClicked: window.nachtOpen = true
                         }
 
                         IconButton {
@@ -776,22 +821,139 @@ Item {
                                     color: isToday ? window.base : (isCurrentMonth ? window.text : window.subtext0)
                                     opacity: isCurrentMonth ? 1 : 0.42
                                 }
-                                Rectangle {
-                                    width: window.s(4); height: width; radius: width / 2
+                                Row {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     anchors.bottom: parent.bottom
                                     anchors.bottomMargin: window.s(1)
-                                    color: window.textAccent
-                                    visible: hasEvent
+                                    spacing: window.s(4)
+                                    Rectangle {
+                                        width: window.s(4); height: width; radius: width / 2
+                                        color: window.textAccent
+                                        visible: hasEvent
+                                    }
+                                    Rectangle {
+                                        width: window.s(4); height: width; radius: width / 2
+                                        color: window.googleCalendarAccent
+                                        visible: googleCalendar.eventsFor(dateKey).length > 0
+                                    }
                                 }
                                 MouseArea {
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
-                                    onClicked: window.openEvent(dateKey)
+                                    onClicked: window.selectDay(dateKey)
                                 }
                             }
                         }
+                    }
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: window.s(16)
+                    spacing: window.s(8)
+                    visible: window.dayOpen && !window.editingEvent && !window.nachtOpen
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        EventButton { text: "Back"; onClicked: window.dayOpen = false }
+                        Text {
+                            Layout.fillWidth: true
+                            text: window.selectedDate
+                            color: window.text
+                            font.family: ThemeBackend.fontFamily
+                            font.pixelSize: window.s(14)
+                            font.bold: true
+                        }
+                    }
+                    ScrollView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        contentWidth: availableWidth
+                        clip: true
+                        ColumnLayout {
+                            width: parent.width
+                            spacing: window.s(8)
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Google Calendar"
+                                color: window.googleCalendarAccent
+                                font.family: ThemeBackend.fontFamily
+                                font.pixelSize: window.s(12)
+                                font.weight: Font.DemiBold
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                visible: googleCalendar.loading || !!googleCalendar.message || !window.selectedGoogleEvents.length
+                                text: googleCalendar.message || (googleCalendar.loading
+                                    ? "Loading Google events…" : "No Google events on this date.")
+                                color: window.subtext0
+                                font.pixelSize: window.s(11)
+                                wrapMode: Text.WordWrap
+                                textFormat: Text.PlainText
+                            }
+                            Repeater {
+                                model: window.selectedGoogleEvents
+                                delegate: ColumnLayout {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    spacing: window.s(4)
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.title
+                                        color: window.text
+                                        font.family: ThemeBackend.fontFamily
+                                        font.pixelSize: window.s(13)
+                                        wrapMode: Text.WordWrap
+                                        textFormat: Text.PlainText
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: window.googleEventTime(modelData)
+                                            + (modelData.location ? " · " + modelData.location : "")
+                                        color: window.subtext0
+                                        font.family: ThemeBackend.fontFamily
+                                        font.pixelSize: window.s(11)
+                                        wrapMode: Text.WordWrap
+                                        textFormat: Text.PlainText
+                                    }
+                                    EventButton {
+                                        text: "Open in Google Calendar"
+                                        visible: !!modelData.eventUrl
+                                        enabled: !NachtCalendar.opening
+                                        onClicked: NachtCalendar.activate(modelData)
+                                    }
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 1
+                                        color: Qt.alpha(window.text, 0.09)
+                                    }
+                                }
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                visible: !!window.calendarEvents[window.selectedDate]
+                                text: "Local · " + (window.calendarEvents[window.selectedDate]?.name || "")
+                                color: window.text
+                                font.family: ThemeBackend.fontFamily
+                                font.pixelSize: window.s(12)
+                                wrapMode: Text.WordWrap
+                                textFormat: Text.PlainText
+                            }
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !!NachtCalendar.actionError
+                        text: NachtCalendar.actionError
+                        color: window.red
+                        font.pixelSize: window.s(11)
+                        wrapMode: Text.WordWrap
+                    }
+                    EventButton {
+                        primary: true
+                        text: window.calendarEvents[window.selectedDate] ? "Edit local event" : "Add local event"
+                        onClicked: window.openEvent(window.selectedDate)
                     }
                 }
 

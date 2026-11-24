@@ -7,6 +7,8 @@ base = Path.home() / '.local/share/serpantinum/src/quickshell/bar'
 try:
     bar_path, top_path = base / 'Bar.qml', base / 'TopBar.qml'
     bar, top = bar_path.read_text(), top_path.read_text()
+    if 'readonly property real notchScaleX:' in bar:
+        sys.exit(0)
     original_bar, original_top = bar, top
     old = '            property real barOpacity: 0.78 // local glass style\n'
     new = old + '''            property real notchHoverStrength: (barStyle === "solid" && barPosition === "top" && (barHover.hovered || (TrayMenuController.isVisible && TrayMenuController.screen === barWindowRoot.screen))) ? 0.12 : 0

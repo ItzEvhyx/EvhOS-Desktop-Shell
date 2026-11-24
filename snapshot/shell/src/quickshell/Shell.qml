@@ -69,7 +69,9 @@ ShellRoot {
         sourceComponent: Bar { entrance: loginEntrance }
     }
     ScreenRecorder {}
-    Lock {}
+    Lock { id: sessionLock }
+    Binding { target: NachtCalendar; property: "locked"; value: sessionLock.sessionLocked }
+    NachtOverlay {}
     WidgetRedactor {}
     LockRedactor {}
 

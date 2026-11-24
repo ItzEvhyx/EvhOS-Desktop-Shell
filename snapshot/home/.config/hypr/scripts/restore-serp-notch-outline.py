@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Restore the outline that follows the complete top-bar notch shape."""
 from pathlib import Path
+import re
 import sys
 
 path = Path.home() / '.local/share/serpantinum/src/quickshell/bar/TopBar.qml'
@@ -51,7 +52,9 @@ try:
         needle = 'import QtQuick.Controls\n'
         if updated.count(needle) != 1: raise ValueError('imports changed')
         updated = updated.replace(needle, needle + 'import QtQuick.Shapes\n', 1)
-    if outline not in updated:
+    # The persistent top-bar template can provide a newer outline with this id.
+    # Appending the fallback in that case fights the template on every timer pass.
+    if not re.search(r"(?m)^\s*id:\s*notchOutline\b", updated):
         needle = '    ShaderEffect {\n        id: leftOuterCorner\n'
         if updated.count(needle) != 1: raise ValueError('notch layout changed')
         updated = updated.replace(needle, outline + needle, 1)

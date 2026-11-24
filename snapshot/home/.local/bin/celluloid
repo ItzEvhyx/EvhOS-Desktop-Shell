@@ -1,0 +1,3 @@
+#!/bin/sh
+# Keep terminal launches on the same tested renderer path as the desktop entry.
+exec /home/yhvhan/.local/bin/celluloid-x11 "$@"

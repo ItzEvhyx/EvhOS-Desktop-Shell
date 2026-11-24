@@ -61,7 +61,7 @@
     "opacity": 70,
     "style": "solid",
     "distinctPills": false,
-    "autohide": true,
+    "autohide": false,
     "autohideTimeout": 1000,
     "modules": {
       "left": [
@@ -273,6 +273,9 @@
     "backgroundMode": "follow",
     "customBackground": ""
   },
-  "wallpaperPickerStyle": "card"
+  "wallpaperPickerStyle": "card",
+  "nacht": {
+    "calendarEnabled": true
+  }
 }
 

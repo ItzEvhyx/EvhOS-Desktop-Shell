@@ -14,6 +14,7 @@ Item {
     property bool alignBottom: false
     property bool isSideBar: false
     property var screen: null
+    property var topBarAttachment: null
     property bool menuHovered: false
     property int hoveredItems: 0
     readonly property bool itemHovered: hoveredItems > 0

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Hyprland (uwsm-managed)
+Comment=An intelligent dynamic tiling Wayland compositor
+Exec=/home/yhvhan/.config/hypr/scripts/start-hyprland-uwsm-gdm.sh
+TryExec=/home/yhvhan/.config/hypr/scripts/start-hyprland-uwsm-gdm.sh
+DesktopNames=Hyprland
+Type=Application

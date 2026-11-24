@@ -80,7 +80,10 @@ hl.layer_rule({
     no_anim = true,
 })
 hl.layer_rule({ name = "serp-glass-process-desk", match = { namespace = "^evhos-process-desk$" }, blur = true, ignore_alpha = 0.05 })
-hl.layer_rule({ name = "serp-glass-tray-menu", match = { namespace = "^traymenu$" }, blur = true, ignore_alpha = 0.05 })
+-- The tray menu unfolds from the top bar inside its own layer.
+hl.layer_rule({ name = "serp-glass-tray-menu", match = { namespace = "^traymenu$" }, blur = true, ignore_alpha = 0.05, no_anim = true })
+-- Nacht reveals its reminder from the bar or screen edge inside its layer.
+hl.layer_rule({ name = "evhos-nacht-animation", match = { namespace = "^evhos-nacht-calendar$" }, no_anim = true })
 hl.layer_rule({ name = "serp-glass-osd", match = { namespace = "^osd$" }, blur = true, ignore_alpha = 0.05 })
 hl.layer_rule({ name = "serp-glass-launcher", match = { namespace = "^qs-applauncher$" }, blur = true, ignore_alpha = 0.05 })
 
